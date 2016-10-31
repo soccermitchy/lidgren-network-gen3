@@ -1,13 +1,27 @@
 {
   "version": "1.0.0-*",
   "buildOptions": {
-    "debugType": "portable"
+    "debugType": "portable",
+    "define": [
+      "__CONSTRAINED__",
+      "DOTNETCORE"
+    ]
   },
   "dependencies": {},
   "frameworks": {
     "netstandard1.6": {
       "dependencies": {
-        "NETStandard.Library": "1.6.0"
+        "NETStandard.Library": "1.6.0",
+        "System.Security.Cryptography.Algorithms": "4.3.0-preview1-24530-04",
+        "System.Threading.Thread": "4.3.0-preview1-24530-04",
+        "System.Xml.XmlDocument": "4.3.0-preview1-24530-04",
+        "System.Net.Requests": "4.3.0-preview1-24530-04",
+      },
+      "buildOptions": {
+        "define": [
+          "__CONSTRAINED__",
+          "DOTNETCORE"
+        ]
       }
     }
   }

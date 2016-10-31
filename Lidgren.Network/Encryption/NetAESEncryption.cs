@@ -1,10 +1,7 @@
-using System;
-using System.IO;
-using System.Security.Cryptography;
-
+#if AESEnabled
 namespace Lidgren.Network
 {
-	public class NetAESEncryption : NetCryptoProviderBase
+    public class NetAESEncryption : NetCryptoProviderBase
 	{
 		public NetAESEncryption(NetPeer peer)
 #if UNITY
@@ -36,3 +33,4 @@ namespace Lidgren.Network
 		}
 	}
 }
+#endif

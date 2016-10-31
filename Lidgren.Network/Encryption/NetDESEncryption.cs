@@ -4,8 +4,12 @@ using System.Security.Cryptography;
 
 namespace Lidgren.Network
 {
+
+#if !DOTNETCORE
 	public class NetDESEncryption : NetCryptoProviderBase
 	{
+
+
 		public NetDESEncryption(NetPeer peer)
 			: base(peer, new DESCryptoServiceProvider())
 		{
@@ -22,5 +26,6 @@ namespace Lidgren.Network
 		{
 			SetKey(data, offset, count);
 		}
-	}
+    }
+#endif
 }

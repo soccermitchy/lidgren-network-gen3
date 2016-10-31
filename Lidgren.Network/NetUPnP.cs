@@ -181,7 +181,7 @@ namespace Lidgren.Network
 					"<u:AddPortMapping xmlns:u=\"urn:schemas-upnp-org:service:" + m_serviceName + ":1\">" +
 					"<NewRemoteHost></NewRemoteHost>" +
 					"<NewExternalPort>" + port.ToString() + "</NewExternalPort>" +
-					"<NewProtocol>" + ProtocolType.Udp.ToString().ToUpper(System.Globalization.CultureInfo.InvariantCulture) + "</NewProtocol>" +
+					"<NewProtocol>" + ProtocolType.Udp.ToString().ToUpper() + "</NewProtocol>" +
 					"<NewInternalPort>" + port.ToString() + "</NewInternalPort>" +
 					"<NewInternalClient>" + client.ToString() + "</NewInternalClient>" +
 					"<NewEnabled>1</NewEnabled>" +
@@ -216,7 +216,7 @@ namespace Lidgren.Network
 				"<NewRemoteHost>" +
 				"</NewRemoteHost>" +
 				"<NewExternalPort>" + port + "</NewExternalPort>" +
-				"<NewProtocol>" + ProtocolType.Udp.ToString().ToUpper(System.Globalization.CultureInfo.InvariantCulture) + "</NewProtocol>" +
+				"<NewProtocol>" + ProtocolType.Udp.ToString().ToUpper() + "</NewProtocol>" +
 				"</u:DeletePortMapping>", "DeletePortMapping");
 				return true;
 			}

@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography;
 
 namespace Lidgren.Network
 {
-	public abstract class NetCryptoProviderBase : NetEncryption
+    public abstract class NetCryptoProviderBase : NetEncryption
 	{
 		protected SymmetricAlgorithm m_algorithm;
 
@@ -38,13 +37,15 @@ namespace Lidgren.Network
 			var ms = new MemoryStream();
 			var cs = new CryptoStream(ms, m_algorithm.CreateEncryptor(), CryptoStreamMode.Write);
 			cs.Write(msg.m_data, 0, msg.LengthBytes);
-			cs.Close();
+			//cs.Close();
+            cs.Dispose();
 
-			// get results
-			var arr = ms.ToArray();
-			ms.Close();
+            // get results
+            var arr = ms.ToArray();
+            //ms.Close();
+            ms.Dispose();
 
-			msg.EnsureBufferSize((arr.Length + 4) * 8);
+            msg.EnsureBufferSize((arr.Length + 4) * 8);
 			msg.LengthBits = 0; // reset write pointer
 			msg.Write((uint)unEncLenBits);
 			msg.Write(arr);
@@ -63,11 +64,12 @@ namespace Lidgren.Network
 			var byteLen = NetUtility.BytesToHoldBits(unEncLenBits);
 			var result = m_peer.GetStorage(byteLen);
 			cs.Read(result, 0, byteLen);
-			cs.Close();
+            //cs.Close();
+            cs.Dispose();
 
-			// TODO: recycle existing msg
+            // TODO: recycle existing msg
 
-			msg.m_data = result;
+            msg.m_data = result;
 			msg.m_bitLength = unEncLenBits;
 			msg.m_readPosition = 0;
 
