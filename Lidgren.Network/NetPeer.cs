@@ -65,8 +65,9 @@ namespace Lidgren.Network
 		/// <summary>
 		/// Returns an UPnP object if enabled in the NetPeerConfiguration
 		/// </summary>
+#if !DOTNETCORE
 		public NetUPnP UPnP { get { return m_upnp; } }
-
+#endif
 		/// <summary>
 		/// Gets or sets the application defined object containing data about the peer
 		/// </summary>

@@ -262,11 +262,12 @@ namespace Lidgren.Network
 
 						try
 						{
-							m_socket.Close(2); // 2 seconds timeout
+							//m_socket.Close(2); // 2 seconds timeout
+							m_socket.Dispose();
 						}
 						catch (Exception ex)
 						{
-							LogDebug("Socket.Close exception: " + ex.ToString());
+							LogDebug("Socket.Dispose exception: " + ex.ToString());
 						}
 					}
 				}

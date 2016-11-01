@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography;
 
 namespace Lidgren.Network
 {
-	public abstract class NetCryptoProviderEncryption : NetEncryption
+    public abstract class NetCryptoProviderEncryption : NetEncryption
 	{
 		public NetCryptoProviderEncryption(NetPeer peer)
 			: base(peer)

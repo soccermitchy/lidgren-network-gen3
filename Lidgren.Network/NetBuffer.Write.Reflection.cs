@@ -40,7 +40,8 @@ namespace Lidgren.Network
 				return;
 			Type tp = ob.GetType();
 
-			FieldInfo[] fields = tp.GetFields(flags);
+			//FieldInfo[] fields = tp.GetFields(flags);
+			FieldInfo[] fields = TypeExtensions.GetFields(tp, flags);
 			NetUtility.SortMembersList(fields);
 
 			foreach (FieldInfo fi in fields)

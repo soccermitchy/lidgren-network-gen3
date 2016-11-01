@@ -110,44 +110,9 @@ namespace Lidgren.Network
 			IPHostEntry entry;
 			try
 			{
-				Dns.BeginGetHostEntry(ipOrHost, delegate(IAsyncResult result)
-				{
-					try
-					{
-						entry = Dns.EndGetHostEntry(result);
-					}
-					catch (SocketException ex)
-					{
-						if (ex.SocketErrorCode == SocketError.HostNotFound)
-						{
-							//LogWrite(string.Format(CultureInfo.InvariantCulture, "Failed to resolve host '{0}'.", ipOrHost));
-							callback(null);
-							return;
-						}
-						else
-						{
-							throw;
-						}
-					}
-
-					if (entry == null)
-					{
-						callback(null);
-						return;
-					}
-
-					// check each entry for a valid IP address
-					foreach (var ipCurrent in entry.AddressList)
-					{
-						if (ipCurrent.AddressFamily == AddressFamily.InterNetwork)
-						{
-							callback(ipCurrent);
-							return;
-						}
-					}
-
-					callback(null);
-				}, null);
+				var addrTask = Dns.GetHostEntryAsync(ipOrHost);
+				addrTask.RunSynchronously();
+				callback(addrTask.Result.AddressList[0]);
 			}
 			catch (SocketException ex)
 			{
@@ -184,10 +149,13 @@ namespace Lidgren.Network
 			// ok must be a host name
 			try
 			{
-				var addresses = Dns.GetHostAddresses(ipOrHost);
-				if (addresses == null)
+				//var addresses = Dns.GetHostAddresses(ipOrHost);
+				var addressesTask = Dns.GetHostAddressesAsync(ipOrHost);
+				addressesTask.RunSynchronously();
+				//var address = addressesTask.Result;
+				if (addressesTask.Result == null)
 					return null;
-				foreach (var address in addresses)
+				foreach (var address in addressesTask.Result)
 				{
 					if (address.AddressFamily == AddressFamily.InterNetwork)
 						return address;
@@ -413,7 +381,7 @@ namespace Lidgren.Network
 					{
 						if (j >= h)
 						{
-							if (string.Compare(list[j - h].Name, tmp.Name, StringComparison.InvariantCulture) > 0)
+							if (string.Compare(list[j - h].Name, tmp.Name, StringComparison.CurrentCulture) > 0)
 							{
 								list[j] = list[j - h];
 								j -= h;

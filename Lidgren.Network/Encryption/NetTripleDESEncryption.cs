@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 
 namespace Lidgren.Network
 {
+#if !DOTNETCORE
 	public class NetTripleDESEncryption : NetCryptoProviderBase
 	{
 		public NetTripleDESEncryption(NetPeer peer)
@@ -23,4 +24,5 @@ namespace Lidgren.Network
 			SetKey(data, offset, count);
 		}
 	}
+#endif
 }

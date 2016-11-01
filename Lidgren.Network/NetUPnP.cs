@@ -11,6 +11,7 @@ using NetEndPoint = System.Net.IPEndPoint;
 
 namespace Lidgren.Network
 {
+
 	/// <summary>
 	/// Status of the UPnP capabilities
 	/// </summary>
@@ -64,6 +65,7 @@ namespace Lidgren.Network
 
 		internal void Discover(NetPeer peer)
 		{
+#if !DOTNETCORE
 			string str =
 "M-SEARCH * HTTP/1.1\r\n" +
 "HOST: 239.255.255.250:1900\r\n" +
@@ -80,29 +82,35 @@ namespace Lidgren.Network
 			peer.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
 			peer.RawSend(arr, 0, arr.Length, new NetEndPoint(NetUtility.GetBroadcastAddress(), 1900));
 			peer.Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, false);
+#endif
 		}
 
 	    internal void CheckForDiscoveryTimeout()
 	    {
+#if !DOTNETCORE
 	        if ((m_status != UPnPStatus.Discovering) || (NetTime.Now < m_discoveryResponseDeadline))
                 return;
 	        m_peer.LogDebug("UPnP discovery timed out");
 	        m_status = UPnPStatus.NotAvailable;
+#endif
 	    }
 
 		internal void ExtractServiceUrl(string resp)
 		{
+#if !DOTNETCORE
 #if !DEBUG
 			try
 			{
 #endif
 			XmlDocument desc = new XmlDocument();
-			using (var response = WebRequest.Create(resp).GetResponse())
+			using (var response = await WebRequest.Create(resp).GetResponseAsync())
 				desc.Load(response.GetResponseStream());
 
 			XmlNamespaceManager nsMgr = new XmlNamespaceManager(desc.NameTable);
 			nsMgr.AddNamespace("tns", "urn:schemas-upnp-org:device-1-0");
-			XmlNode typen = desc.SelectSingleNode("//tns:device/tns:deviceType/text()", nsMgr);
+			//XmlNode typen = desc.SelectSingleNode("//tns:device/tns:deviceType/text()", nsMgr);
+			//var a = desc.DocumentElement;
+			a.
 			if (!typen.Value.Contains("InternetGatewayDevice"))
 				return;
 
@@ -129,6 +137,7 @@ namespace Lidgren.Network
 				return;
 			}
 #endif
+#endif // !DOTNETCORE
 		}
 
 		private static string CombineUrls(string gatewayURL, string subURL)
@@ -146,6 +155,9 @@ namespace Lidgren.Network
 
 		private bool CheckAvailability()
 		{
+			#if DOTNETCORE
+			return false;
+			#endif
 			switch (m_status)
 			{
 				case UPnPStatus.NotAvailable:
@@ -167,6 +179,7 @@ namespace Lidgren.Network
 		/// </summary>
 		public bool ForwardPort(int port, string description)
 		{
+#if !DOTNETCORE
 			if (!CheckAvailability())
 				return false;
 
@@ -199,6 +212,8 @@ namespace Lidgren.Network
 				return false;
 			}
 			return true;
+#endif
+			return false;
 		}
 
 		/// <summary>
@@ -206,6 +221,7 @@ namespace Lidgren.Network
 		/// </summary>
 		public bool DeleteForwardingRule(int port)
 		{
+#if !DOTNETCORE
 			if (!CheckAvailability())
 				return false;
 
@@ -225,6 +241,8 @@ namespace Lidgren.Network
 				m_peer.LogWarning("UPnP delete forwarding rule failed: " + ex.Message);
 				return false;
 			}
+#endif
+			return false;
 		}
 
 		/// <summary>
@@ -232,6 +250,7 @@ namespace Lidgren.Network
 		/// </summary>
 		public IPAddress GetExternalIP()
 		{
+#if !DOTNETCORE
 			if (!CheckAvailability())
 				return null;
 			try
@@ -241,6 +260,7 @@ namespace Lidgren.Network
 				XmlNamespaceManager nsMgr = new XmlNamespaceManager(xdoc.NameTable);
 				nsMgr.AddNamespace("tns", "urn:schemas-upnp-org:device-1-0");
 				string IP = xdoc.SelectSingleNode("//NewExternalIPAddress/text()", nsMgr).Value;
+
 				return IPAddress.Parse(IP);
 			}
 			catch (Exception ex)
@@ -248,10 +268,13 @@ namespace Lidgren.Network
 				m_peer.LogWarning("Failed to get external IP: " + ex.Message);
 				return null;
 			}
+#endif
+			return IPAddress.Parse("127.0.0.1"); // TODO: make this not return 127.0.0.1
 		}
 
 		private XmlDocument SOAPRequest(string url, string soap, string function)
 		{
+#if !DOTNETCORE
 			string req = "<?xml version=\"1.0\"?>" +
 			"<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
 			"<s:Body>" +
@@ -262,15 +285,18 @@ namespace Lidgren.Network
 			r.Method = "POST";
 			byte[] b = System.Text.Encoding.UTF8.GetBytes(req);
 			r.Headers.Add("SOAPACTION", "\"urn:schemas-upnp-org:service:" + m_serviceName + ":1#" + function + "\""); 
+			//r.Headers["SOAPACTION"] = "\"urn:schemas-upnp-org:service:" + m_serviceName + ":1#" + function + "\"";
 			r.ContentType = "text/xml; charset=\"utf-8\"";
 			r.ContentLength = b.Length;
 			r.GetRequestStream().Write(b, 0, b.Length);
-			using (WebResponse wres = r.GetResponse()) {
+			using (WebResponse wres = GetResponse(r)) {
 				XmlDocument resp = new XmlDocument();
 				Stream ress = wres.GetResponseStream();
 				resp.Load(ress);
 				return resp;
 			}
+#endif
+			return new XmlDocument();
 		}
 	}
 }
